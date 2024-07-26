@@ -23,6 +23,7 @@ function App() {
     year: "",
     new_title: "",
     new_year: "",
+    new_author: "",
   };
   const emptyBook = {
     author: "",
@@ -337,6 +338,16 @@ function App() {
             />
           </div>
           <div className="form-group">
+            <label>Autor:</label>
+            <input
+              type="text"
+              className="form-control"
+              name="author"
+              value={updateBook.author}
+              onChange={handleInputUpdateBook}
+            />
+          </div>
+          <div className="form-group">
             <label>Nuevo Titulo:</label>
             <input
               type="text"
@@ -361,8 +372,8 @@ function App() {
             <input
               type="text"
               className="form-control"
-              name="author"
-              value={updateBook.author}
+              name="new_author"
+              value={updateBook.new_author}
               onChange={handleInputUpdateBook}
             />
           </div>
@@ -407,7 +418,7 @@ function App() {
             />
           </div>
           <div className="form-group">
-            <label>Nuevo Paginas:</label>
+            <label>Nueva cantidad de paginas:</label>
             <input
               type="number"
               className="form-control"

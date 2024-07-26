@@ -22,7 +22,7 @@ def traer_libros():
 @app.get("/books-store")
 
 #Trae los libros buscados por titulo, año y autor
-def buscar_libro(title:str=None, year:str = None,author:str = None):
+def buscar_libro(title:str = None, year:str = None,author:str = None):
     if year == '': year = None
     if title == '': title = None
     if author == '': author = None
@@ -46,7 +46,7 @@ def buscar_libro(title:str=None, year:str = None,author:str = None):
 @app.post("/books-store")
 def agregar_libro(author:str,country:str,imageLink:str,language:str,link:str,pages:str,title:str,year:str ):
 
-    libro = buscar_libro(title, year)
+    libro = buscar_libro(title, year, author)
     if type(libro) != list:
         nuevo_libro = {
             'author': author,
@@ -61,22 +61,22 @@ def agregar_libro(author:str,country:str,imageLink:str,language:str,link:str,pag
         with open(ruta,'r+', encoding='ANSI') as file:
             data = json.load(file)
             file.seek(0)
-            
-            nueva_data = data + [nuevo_libro]
-            json.dump(nueva_data, file,indent=1, ensure_ascii=False)
-            file.truncate()
+            data.append(nuevo_libro)
+            json.dump(data, file,indent=1, ensure_ascii=False)
+
         file.close()
-        return('libro agregado')
+        return 'libro agregado'
     else:
-        return('Ya existe la libro')    
+        return 'Ya existe el libro'    
 
 #Busca un libro por su titulo y año de creacion y actualiza sus variables
 @app.put("/books-store")
-def actualizar_libro( title:str,year:str,author:str,country:str,imageLink:str,language:str,link:str,pages:str,new_title:str,new_year:str):
+def actualizar_libro( title:str,year:str,author:str,country:str,imageLink:str,language:str,link:str,pages:str,new_title:str,new_year:str,new_author:str):
+    if title == '' or year == '' or author == '': return 'las variables titulo, año y autor son obligatorias'
     if new_year != '': new_year = int(new_year)
     if pages != '': pages =int(pages)
     variables_actualizar =  {
-            'author': author,
+            'author': new_author,
             'country': country,
             'imageLink': imageLink,
             'language': language,
@@ -94,7 +94,7 @@ def actualizar_libro( title:str,year:str,author:str,country:str,imageLink:str,la
             data = json.load(file)
 
             for libro in data:
-                if libro['title'] == title and libro['year'] == int(year):
+                if libro['title'] == title and libro['year'] == int(year) and libro['author'] == author:
                     for title_variable, valor_variable in variables_actualizar.items():
 
                         #si la variable tiene un valor para actualizar la actualiza
@@ -103,25 +103,25 @@ def actualizar_libro( title:str,year:str,author:str,country:str,imageLink:str,la
                               
                     file.seek(0)
                     json.dump(data, file, indent=1, ensure_ascii=False)
-                    
-                    file.truncate()
-                    
+                    break
         file.close()
-        return 'variable actualizada'
+        return 'libro actualizado'
     else:
-        return 'libro no encontrada'
+        return 'libro no encontrado'
 
         
 #Busca y elimina un libro 
 @app.delete("/books-store")
 def borrar_libro(title:str,year:str,author:str):
-    with open(ruta, 'r+', encoding='ANSI') as file:
-        data = json.load(file)
-        for libro in data:
-            if libro['title'] == title and libro['year'] == int(year) and libro['author'] == author:
-                data.remove(libro)
-                with open(ruta, 'w', encoding='ANSI') as file:
-                    json.dump(data, file, indent=1, ensure_ascii=False)
-                    file.close()
-                return 'libro borrado'
-        return 'No se encontro el libro'
+    libro = buscar_libro(title,year,author)
+
+    if type(libro) != str :
+        with open(ruta, 'r+', encoding='ANSI') as file:
+            data = json.load(file)
+            data.remove(libro[0])
+            file.seek(0)
+            json.dump(data, file, indent=1, ensure_ascii=False)
+            file.truncate() 
+            return 'Libro borrado'
+    else:
+        return 'No se encontró el libro'
